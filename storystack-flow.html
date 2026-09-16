@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StoryStack — Architecture Flow</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0B1628; --panel: #111F35; --panel2: #182844;
+    --border: #1E3050; --text: #E2E8F0; --muted: #7A9BBF;
+    --accent: #3B82F6; --green: #10B981; --amber: #F59E0B;
+    --purple: #8B5CF6; --red: #EF4444;
+    --font: 'Inter', sans-serif; --mono: 'DM Mono', monospace;
+  }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center;
+    padding: 40px 24px;
+  }
+  h1 {
+    font-size: 20px; font-weight: 700; margin-bottom: 4px;
+    letter-spacing: -0.3px;
+  }
+  h1 span { color: #60A5FA; }
+  .subtitle {
+    font-size: 12px; font-family: var(--mono); color: var(--muted);
+    margin-bottom: 40px;
+  }
+
+  /* ── Diagram container ── */
+  .diagram {
+    width: 100%; max-width: 860px;
+    display: flex; flex-direction: column; gap: 0;
+  }
+
+  /* ── Row layouts ── */
+  .row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0;
+  }
+  .row-gap { height: 0; }
+
+  /* ── Nodes ── */
+  .node {
+    background: var(--panel);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    text-align: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .node-label {
+    font-size: 11px; font-family: var(--mono);
+    color: var(--muted); margin-bottom: 3px;
+    letter-spacing: 0.04em;
+  }
+  .node-title {
+    font-size: 13px; font-weight: 600; color: var(--text);
+    line-height: 1.3;
+  }
+  .node-sub {
+    font-size: 11px; color: var(--muted); margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  /* Node colour variants */
+  .node-user   { border-color: var(--accent);  background: rgba(59,130,246,0.08); }
+  .node-api    { border-color: var(--purple); background: rgba(139,92,246,0.08); }
+  .node-output { border-color: var(--green);  background: rgba(16,185,129,0.08); }
+  .node-brief  { border-color: var(--amber);  background: rgba(245,158,11,0.08); }
+  .node-fallback { border-color: var(--red);  background: rgba(239,68,68,0.08); }
+  .node-cloud  { border-color: var(--purple); background: rgba(139,92,246,0.12);
+                 border-style: dashed; }
+
+  /* Sizing */
+  .w-120 { width: 120px; }
+  .w-140 { width: 140px; }
+  .w-160 { width: 160px; }
+  .w-180 { width: 180px; }
+  .w-200 { width: 200px; }
+  .w-220 { width: 220px; }
+
+  /* ── Arrows ── */
+  /* Horizontal arrow */
+  .arr-h {
+    display: flex; align-items: center;
+    flex-shrink: 0;
+  }
+  .arr-h .line {
+    height: 1.5px; background: var(--border);
+    flex: 1;
+  }
+  .arr-h .head {
+    width: 0; height: 0;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 7px solid var(--border);
+    flex-shrink: 0;
+  }
+  .arr-h.accent .line  { background: var(--accent); }
+  .arr-h.accent .head  { border-left-color: var(--accent); }
+  .arr-h.green  .line  { background: var(--green); }
+  .arr-h.green  .head  { border-left-color: var(--green); }
+  .arr-h.amber  .line  { background: var(--amber); }
+  .arr-h.amber  .head  { border-left-color: var(--amber); }
+  .arr-h.purple .line  { background: var(--purple); }
+  .arr-h.purple .head  { border-left-color: var(--purple); }
+  .arr-h.red    .line  { background: var(--red); }
+  .arr-h.red    .head  { border-left-color: var(--red); }
+
+  /* Vertical arrow (down) */
+  .arr-v {
+    display: flex; flex-direction: column; align-items: center;
+    flex-shrink: 0;
+  }
+  .arr-v .line {
+    width: 1.5px; background: var(--border);
+    flex: 1;
+  }
+  .arr-v .head {
+    width: 0; height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid var(--border);
+    flex-shrink: 0;
+  }
+  .arr-v.accent .line  { background: var(--accent); }
+  .arr-v.accent .head  { border-top-color: var(--accent); }
+  .arr-v.green  .line  { background: var(--green); }
+  .arr-v.green  .head  { border-top-color: var(--green); }
+  .arr-v.amber  .line  { background: var(--amber); }
+  .arr-v.amber  .head  { border-top-color: var(--amber); }
+  .arr-v.purple .line  { background: var(--purple); }
+  .arr-v.purple .head  { border-top-color: var(--purple); }
+  .arr-v.red    .line  { background: var(--red); }
+  .arr-v.red    .head  { border-top-color: var(--red); }
+  .arr-v.muted  .line  { background: var(--muted); }
+  .arr-v.muted  .head  { border-top-color: var(--muted); }
+
+  /* Arrow label */
+  .arr-label {
+    font-size: 10px; font-family: var(--mono); color: var(--muted);
+    white-space: nowrap; text-align: center;
+  }
+
+  /* ── Section divider ── */
+  .flow-section {
+    display: flex; align-items: center; gap: 10px;
+    margin: 24px 0 16px;
+    font-size: 11px; font-family: var(--mono);
+    color: var(--muted);
+  }
+  .flow-section::before, .flow-section::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  /* ── Legend ── */
+  .legend {
+    display: flex; gap: 20px; flex-wrap: wrap;
+    margin-top: 36px;
+    padding: 14px 20px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-family: var(--mono); color: var(--muted);
+  }
+  .legend-dot {
+    width: 10px; height: 10px; border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── Decision diamond ── */
+  .diamond-wrap {
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .diamond {
+    width: 56px; height: 56px;
+    background: var(--panel2);
+    border: 1.5px solid var(--amber);
+    transform: rotate(45deg);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .diamond-inner {
+    transform: rotate(-45deg);
+    font-size: 9px; font-family: var(--mono); color: var(--amber);
+    text-align: center; line-height: 1.3;
+    font-weight: 600;
+  }
+
+  /* spacer */
+  .sp { flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<h1>Story<span>Stack</span> — Architecture Flow</h1>
+<div class="subtitle">Two API flows · Synthetic fallback · Context-driven scoring</div>
+
+<div class="diagram">
+
+  <!-- ══════════════════════════════════════════
+       ROW 1: USER INPUTS
+  ══════════════════════════════════════════ -->
+  <div class="flow-section">USER INPUTS</div>
+
+  <div class="row" style="gap:12px; flex-wrap:wrap; justify-content:center;">
+    <div class="node node-user w-160">
+      <div class="node-label">textarea</div>
+      <div class="node-title">Feature Requests</div>
+      <div class="node-sub">Paste or type,<br>one per paragraph</div>
+    </div>
+    <div class="node node-user w-140">
+      <div class="node-label">dropdown</div>
+      <div class="node-title">Product Area</div>
+      <div class="node-sub">Payments · eCommerce<br>Data Platform</div>
+    </div>
+    <div class="node node-user w-140">
+      <div class="node-label">dropdown</div>
+      <div class="node-title">Sprint Capacity</div>
+      <div class="node-sub">Small · Medium<br>Large</div>
+    </div>
+    <div class="node node-user w-160">
+      <div class="node-label">dropdown</div>
+      <div class="node-title">Strategic Priority</div>
+      <div class="node-sub">Growth · Risk Reduction<br>Compliance · Efficiency</div>
+    </div>
+  </div>
+
+  <!-- Arrow down -->
+  <div style="display:flex;justify-content:center;height:36px;">
+    <div class="arr-v accent" style="height:36px;">
+      <div class="line" style="flex:1;"></div>
+      <div class="head"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       FLOW 1: PRIORITIZE
+  ══════════════════════════════════════════ -->
+  <div class="flow-section">FLOW 1 — PRIORITIZE BACKLOG</div>
+
+  <!-- Trigger button -->
+  <div class="row" style="justify-content:center;">
+    <div class="node node-user w-180">
+      <div class="node-label">user action</div>
+      <div class="node-title">▶ Prioritize Backlog</div>
+      <div class="node-sub">Button click triggers scoring</div>
+    </div>
+  </div>
+
+  <!-- Arrow + decision -->
+  <div style="display:flex;justify-content:center;align-items:center;gap:0;margin:0 auto;width:500px;height:60px;">
+    <div class="arr-v accent" style="height:60px;margin:0 auto;">
+      <div class="line" style="flex:1;"></div>
+      <div class="head"></div>
+    </div>
+  </div>
+
+  <!-- API Call 1 -->
+  <div class="row" style="justify-content:center;gap:16px;flex-wrap:wrap;">
+    <div class="node node-api w-220">
+      <div class="node-label">api call 1 · claude-sonnet-4-6</div>
+      <div class="node-title">Scoring Prompt</div>
+      <div class="node-sub">Features + Product Area +<br>Sprint Capacity + Strategic Priority</div>
+    </div>
+    <div class="arr-h purple" style="width:40px;">
+      <div class="line"></div><div class="head"></div>
+    </div>
+    <div class="node node-cloud w-160">
+      <div class="node-label">anthropic api</div>
+      <div class="node-title">Claude Sonnet 4.6</div>
+      <div class="node-sub">Scores each feature<br>returns JSON array</div>
+    </div>
+  </div>
+
+  <!-- Arrow down + fallback branch -->
+  <div style="display:flex;justify-content:center;position:relative;height:60px;width:100%;">
+    <!-- main down arrow -->
+    <div style="display:flex;flex-direction:column;align-items:center;position:absolute;left:50%;transform:translateX(-50%);">
+      <div class="arr-v green" style="height:60px;">
+        <div class="line" style="flex:1;"></div>
+        <div class="head"></div>
+      </div>
+    </div>
+    <!-- fallback branch label -->
+    <div style="position:absolute;right:calc(50% - 260px);top:18px;display:flex;align-items:center;gap:8px;">
+      <div class="arr-label" style="color:var(--red);">API fails →</div>
+      <div class="node node-fallback" style="width:130px;padding:8px 10px;">
+        <div class="node-label">fallback</div>
+        <div class="node-title" style="font-size:12px;">Synthetic Scores</div>
+        <div class="node-sub" style="font-size:10px;">Pre-loaded data,<br>demo never breaks</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scoring output -->
+  <div class="row" style="justify-content:center;gap:12px;flex-wrap:wrap;">
+    <div class="node node-output w-160">
+      <div class="node-label">per feature</div>
+      <div class="node-title">Impact Score</div>
+      <div class="node-sub">0–100</div>
+    </div>
+    <div class="node node-output w-160">
+      <div class="node-label">per feature</div>
+      <div class="node-title">Effort Score</div>
+      <div class="node-sub">0–100</div>
+    </div>
+    <div class="node node-output w-160">
+      <div class="node-label">per feature</div>
+      <div class="node-title">Strategic Fit</div>
+      <div class="node-sub">0–100</div>
+    </div>
+    <div class="node node-output w-160">
+      <div class="node-label">per feature</div>
+      <div class="node-title">Priority Band</div>
+      <div class="node-sub">Must / Should /<br>Nice / Deprioritize</div>
+    </div>
+  </div>
+
+  <!-- Arrow down -->
+  <div style="display:flex;justify-content:center;height:36px;">
+    <div class="arr-v green" style="height:36px;">
+      <div class="line" style="flex:1;"></div>
+      <div class="head"></div>
+    </div>
+  </div>
+
+  <!-- Sort + Render -->
+  <div class="row" style="justify-content:center;gap:16px;flex-wrap:wrap;">
+    <div class="node w-200" style="border-color:var(--green);background:rgba(16,185,129,0.06);">
+      <div class="node-label">client-side logic</div>
+      <div class="node-title">Sort by Band + Score</div>
+      <div class="node-sub">Must Have first → Deprioritize last<br>Tiebreak by composite score</div>
+    </div>
+    <div class="arr-h green" style="width:40px;">
+      <div class="line"></div><div class="head"></div>
+    </div>
+    <div class="node node-output w-200">
+      <div class="node-label">ui render</div>
+      <div class="node-title">Ranked Feature Cards</div>
+      <div class="node-sub">Score bars · Band stripe<br>One-line rationale</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       FLOW 2: DECISION BRIEF
+  ══════════════════════════════════════════ -->
+  <div class="flow-section">FLOW 2 — DECISION BRIEF</div>
+
+  <!-- Trigger -->
+  <div class="row" style="justify-content:center;">
+    <div class="node node-user w-200">
+      <div class="node-label">user action</div>
+      <div class="node-title">📄 Generate Brief</div>
+      <div class="node-sub">Triggered after prioritization</div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:center;height:36px;">
+    <div class="arr-v amber" style="height:36px;">
+      <div class="line" style="flex:1;"></div>
+      <div class="head"></div>
+    </div>
+  </div>
+
+  <!-- API Call 2 -->
+  <div class="row" style="justify-content:center;gap:16px;flex-wrap:wrap;">
+    <div class="node node-api w-240">
+      <div class="node-label">api call 2 · claude-sonnet-4-6</div>
+      <div class="node-title">Narrative Brief Prompt</div>
+      <div class="node-sub">Ranked features + scores + rationales<br>+ Product Area + Sprint + Strategy</div>
+    </div>
+    <div class="arr-h purple" style="width:40px;">
+      <div class="line"></div><div class="head"></div>
+    </div>
+    <div class="node node-cloud w-160">
+      <div class="node-label">anthropic api</div>
+      <div class="node-title">Claude Sonnet 4.6</div>
+      <div class="node-sub">Returns structured<br>1-page memo</div>
+    </div>
+  </div>
+
+  <div style="display:flex;justify-content:center;height:36px;">
+    <div class="arr-v amber" style="height:36px;">
+      <div class="line" style="flex:1;"></div>
+      <div class="head"></div>
+    </div>
+  </div>
+
+  <!-- Brief sections -->
+  <div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap;">
+    <div class="node node-brief w-160" style="font-size:11px;">
+      <div class="node-title" style="font-size:12px;">Executive Summary</div>
+    </div>
+    <div class="node node-brief w-160" style="font-size:11px;">
+      <div class="node-title" style="font-size:12px;">Must Have Rationale</div>
+    </div>
+    <div class="node node-brief w-160" style="font-size:11px;">
+      <div class="node-title" style="font-size:12px;">Should Have Sequencing</div>
+    </div>
+    <div class="node node-brief w-160" style="font-size:11px;">
+      <div class="node-title" style="font-size:12px;">Deprioritize Reasons</div>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:center;height:28px;">
+    <div class="arr-v amber" style="height:28px;">
+      <div class="line" style="flex:1;"></div>
+      <div class="head"></div>
+    </div>
+  </div>
+  <div class="row" style="justify-content:center;gap:10px;flex-wrap:wrap;">
+    <div class="node node-brief w-200">
+      <div class="node-title" style="font-size:12px;">→ Rec for Engineering</div>
+    </div>
+    <div class="node node-brief w-200">
+      <div class="node-title" style="font-size:12px;">→ Rec for Leadership</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(59,130,246,0.5);border:1px solid var(--accent);"></div>User Input</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(139,92,246,0.5);border:1px solid var(--purple);"></div>Claude API</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(16,185,129,0.5);border:1px solid var(--green);"></div>Flow 1 Output</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(245,158,11,0.5);border:1px solid var(--amber);"></div>Flow 2 Output</div>
+  <div class="legend-item"><div class="legend-dot" style="background:rgba(239,68,68,0.5);border:1px solid var(--red);"></div>Fallback Path</div>
+</div>
+
+</body>
+</html>

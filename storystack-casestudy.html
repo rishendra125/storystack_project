@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StoryStack — Case Study · Rishendra Vikram Singh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0B1628;
+    --panel: #111F35;
+    --panel2: #182844;
+    --border: #1E3050;
+    --text: #E2E8F0;
+    --muted: #7A9BBF;
+    --accent: #3B82F6;
+    --accent2: #60A5FA;
+    --green: #10B981;
+    --amber: #F59E0B;
+    --font: 'Inter', sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    line-height: 1.7;
+  }
+
+  a { color: var(--accent2); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── Nav ── */
+  nav {
+    padding: 16px 40px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo { font-weight: 700; font-size: 15px; color: var(--text); }
+  .nav-logo span { color: var(--accent2); }
+  .nav-back {
+    font-size: 13px; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .nav-back:hover { color: var(--text); text-decoration: none; }
+
+  /* ── Hero ── */
+  .hero {
+    max-width: 780px;
+    margin: 60px auto 0;
+    padding: 0 32px;
+  }
+  .hero-eyebrow {
+    font-family: var(--mono); font-size: 11px;
+    color: var(--accent2); letter-spacing: 0.06em;
+    margin-bottom: 16px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+  h1 {
+    font-size: 36px; font-weight: 700;
+    line-height: 1.2; letter-spacing: -0.5px;
+    margin-bottom: 16px;
+  }
+  h1 span { color: var(--accent2); }
+  .hero-sub {
+    font-size: 17px; color: var(--muted); line-height: 1.65;
+    max-width: 600px; margin-bottom: 28px;
+  }
+  .hero-meta {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 40px;
+  }
+  .meta-chip {
+    font-size: 11px; font-family: var(--mono);
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 5px 12px; color: var(--muted);
+  }
+  .meta-chip strong { color: var(--text); }
+
+  .cta-row {
+    display: flex; gap: 12px; margin-bottom: 60px; flex-wrap: wrap;
+  }
+  .btn-primary {
+    padding: 11px 22px; background: var(--accent); color: #fff;
+    border-radius: 8px; font-size: 14px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn-primary:hover { background: #2563EB; text-decoration: none; }
+  .btn-outline {
+    padding: 11px 22px; background: transparent; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 8px;
+    font-size: 14px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .btn-outline:hover { border-color: var(--accent2); color: var(--text); text-decoration: none; }
+
+  /* ── Divider ── */
+  hr { border: none; border-top: 1px solid var(--border); margin: 48px 0; }
+
+  /* ── Body content ── */
+  .content {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 32px 80px;
+  }
+
+  h2 {
+    font-size: 20px; font-weight: 700; margin-bottom: 14px;
+    color: var(--text);
+  }
+  h3 {
+    font-size: 15px; font-weight: 600; color: var(--accent2);
+    margin-bottom: 8px; font-family: var(--mono);
+  }
+  p { font-size: 15px; color: var(--muted); margin-bottom: 16px; line-height: 1.75; }
+  p strong { color: var(--text); }
+
+  .section { margin-bottom: 48px; }
+
+  /* ── Demo runs table ── */
+  .runs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .run-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    border-left: 3px solid var(--accent);
+  }
+  .run-card:nth-child(2) { border-left-color: var(--green); }
+  .run-card:nth-child(3) { border-left-color: var(--amber); }
+  .run-card:nth-child(4) { border-left-color: #8B5CF6; }
+  .run-label {
+    font-family: var(--mono); font-size: 11px; color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .run-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .run-insight { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .run-insight strong { color: var(--text); }
+
+  /* ── Score example ── */
+  .score-example {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    border-left: 4px solid var(--accent);
+    padding: 18px 20px;
+    margin-bottom: 16px;
+  }
+  .score-example-title { font-size: 14px; font-weight: 600; margin-bottom: 10px; }
+  .score-row {
+    display: flex; gap: 24px; flex-wrap: wrap;
+  }
+  .score-col { flex: 1; min-width: 120px; }
+  .score-col label {
+    font-size: 10px; font-family: var(--mono); color: var(--muted);
+    display: block; margin-bottom: 4px;
+  }
+  .score-bar-wrap { height: 4px; background: var(--panel2); border-radius: 2px; margin-bottom: 3px; }
+  .score-bar { height: 100%; border-radius: 2px; }
+  .score-val { font-size: 11px; font-family: var(--mono); color: var(--text); }
+  .band-pill {
+    display: inline-block; font-size: 10px; font-family: var(--mono);
+    padding: 3px 10px; border-radius: 20px; margin-top: 10px;
+    background: rgba(59,130,246,0.15); color: #93C5FD;
+    border: 1px solid rgba(59,130,246,0.3);
+  }
+  .score-rationale {
+    font-size: 12px; color: var(--muted); font-style: italic;
+    margin-top: 10px; padding-top: 10px;
+    border-top: 1px solid var(--border); line-height: 1.6;
+  }
+
+  /* ── Design decisions ── */
+  .decision-list {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .decision-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+    display: grid;
+    grid-template-columns: 24px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+  .decision-icon { font-size: 15px; margin-top: 1px; }
+  .decision-item h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .decision-item p { font-size: 13px; margin: 0; }
+
+  /* ── Build stages ── */
+  .stages {
+    display: flex; flex-direction: column; gap: 0;
+    border-left: 2px solid var(--border);
+    padding-left: 20px;
+    margin-left: 8px;
+  }
+  .stage {
+    position: relative; padding-bottom: 28px;
+  }
+  .stage:last-child { padding-bottom: 0; }
+  .stage-dot {
+    position: absolute; left: -27px; top: 3px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+  }
+  .stage:nth-child(2) .stage-dot { background: var(--green); }
+  .stage h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .stage p { font-size: 13px; margin: 0; }
+
+  /* ── Footer ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 16px;
+    max-width: 780px; margin: 0 auto;
+  }
+  .footer-left { font-size: 13px; color: var(--muted); }
+  .footer-links { display: flex; gap: 16px; }
+  .footer-links a { font-size: 13px; color: var(--muted); }
+  .footer-links a:hover { color: var(--text); }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 26px; }
+    .runs-grid { grid-template-columns: 1fr; }
+    nav { padding: 16px 20px; }
+    .hero, .content { padding-left: 20px; padding-right: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Story<span>Stack</span></div>
+  <a class="nav-back" href="https://rishendra125.github.io">
+    ← Back to Portfolio
+  </a>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">Portfolio Case Study · AI-Powered TPM Tooling</div>
+  <h1>Product Backlog<br><span>Prioritization Assistant</span></h1>
+  <p class="hero-sub">A context-sensitive AI tool that scores feature requests across business impact, effort, and strategic fit — then generates a 1-page Decision Brief formatted for engineering and leadership sign-off.</p>
+
+  <div class="hero-meta">
+    <div class="meta-chip"><strong>Stack</strong> · React · Claude API</div>
+    <div class="meta-chip"><strong>Model</strong> · claude-sonnet-4-6</div>
+    <div class="meta-chip"><strong>Domain</strong> · Payments · eCommerce · Data Platform</div>
+    <div class="meta-chip"><strong>Status</strong> · Live</div>
+  </div>
+
+  <div class="cta-row">
+    <a class="btn-primary" href="https://claude.ai/artifact/JoFnjKqfjxYMDWeZkBgda9" target="_blank">
+      <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5h9M7 2.5l4 4-4 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Open StoryStack
+    </a>
+    <a class="btn-outline" href="https://rishendra125.github.io" target="_blank">
+      ← Portfolio
+    </a>
+  </div>
+</div>
+
+<div class="content">
+
+  <hr />
+
+  <!-- Problem -->
+  <div class="section">
+    <h2>The Problem</h2>
+    <p>Backlog prioritization in fast-moving product teams is often inconsistent — the same feature gets ranked differently depending on who's in the room, what the last all-hands said, or what the loudest stakeholder wants this week. Frameworks like RICE or MoSCoW help, but they require manual scoring and don't adapt when the strategic context changes.</p>
+    <p>A Technical Program Manager needs to walk into a sprint planning meeting with a defensible, reasoned prioritization — not a gut-feel list. And when leadership asks "why is this a Must Have?", the answer needs to come from the frame, not personal preference.</p>
+    <p><strong>StoryStack makes the reasoning explicit, consistent, and context-sensitive.</strong></p>
+  </div>
+
+  <hr />
+
+  <!-- What it does -->
+  <div class="section">
+    <h2>What It Does</h2>
+    <p>The user pastes feature requests into a text area, sets three context inputs, and gets back a ranked, scored backlog with a rationale per feature and a Decision Brief ready to present.</p>
+
+    <h3>Context Inputs</h3>
+    <p>These three dropdowns are where the intelligence lives. The same backlog produces materially different rankings when the strategic frame changes.</p>
+
+    <div class="decision-list" style="margin-bottom:16px;">
+      <div class="decision-item">
+        <div class="decision-icon">🏗️</div>
+        <div>
+          <h4>Product Area</h4>
+          <p>Sets the domain lens — Payments, eCommerce, or Data Platform. Controls how business impact is assessed: a "self-serve dashboard" scores differently in Payments (merchant decline visibility) vs Data Platform (analyst SQL access).</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="decision-icon">⚡</div>
+        <div>
+          <h4>Sprint Capacity</h4>
+          <p>Small / Medium / Large. Effort scores above a capacity threshold block Must Have assignment regardless of impact. A high-value item can be genuinely wrong for a given sprint — this makes that constraint explicit.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="decision-icon">🎯</div>
+        <div>
+          <h4>Strategic Priority</h4>
+          <p>Growth / Risk Reduction / Compliance / Efficiency. The single most influential input. Directly drives Strategic Fit scoring and band assignment. BNPL integration is a Must Have under Growth and a Deprioritize under Risk Reduction — because it introduces third-party dependency risk that is actively counter to the frame.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Output</h3>
+    <p>Each feature is scored on <strong>Business Impact</strong>, <strong>Effort</strong>, and <strong>Strategic Fit</strong> (0–100), assigned a Priority Band (Must Have / Should Have / Nice to Have / Deprioritize), and given a one-line rationale tied to the selected context. The Decision Brief is a structured 1-page memo covering sprint commitment, sequencing, and explicit recommendations for both engineering and leadership.</p>
+  </div>
+
+  <hr />
+
+  <!-- Score example -->
+  <div class="section">
+    <h2>Scoring in Action</h2>
+    <p>This is how the same feature — ML fraud detection — scores differently across two strategic frames on identical sprint capacity:</p>
+
+    <div class="score-example" style="border-left-color: var(--accent);">
+      <div class="score-example-title">Add real-time fraud detection · Payments · Medium · <span style="color:var(--green)">Growth</span></div>
+      <div class="score-row">
+        <div class="score-col">
+          <label>Business Impact</label>
+          <div class="score-bar-wrap"><div class="score-bar" style="width:85%;background:#3B82F6"></div></div>
+          <div class="score-val">85/100</div>
+        </div>
+        <div class="score-col">
+          <label>Effort</label>
+          <div class="score-bar-wrap"><div class="score-bar" style="width:70%;background:#F59E0B"></div></div>
+          <div class="score-val">70/100</div>
+        </div>
+        <div class="score-col">
+          <label>Strategic Fit</label>
+          <div class="score-bar-wrap"><div class="score-bar" style="width:80%;background:#3B82F6"></div></div>
+          <div class="score-val">80/100</div>
+        </div>
+      </div>
+      <div class="band-pill" style="background:rgba(16,185,129,0.15);color:#6EE7B7;border-color:rgba(16,185,129,0.3)">Should Have</div>
+      <div class="score-rationale">High fraud prevention value but ML scoring integration complexity pushes it outside a clean Must Have for Medium sprint without de-risking work already done.</div>
+    </div>
+
+    <div class="score-example" style="border-left-color: var(--green);">
+      <div class="score-example-title">Add real-time fraud detection · Payments · Medium · <span style="color:var(--accent2)">Risk Reduction</span></div>
+      <div class="score-row">
+        <div class="score-col">
+          <label>Business Impact</label>
+          <div class="score-bar-wrap"><div class="score-bar" style="width:88%;background:#3B82F6"></div></div>
+          <div class="score-val">88/100</div>
+        </div>
+        <div class="score-col">
+          <label>Effort</label>
+          <div class="score-bar-wrap"><div class="score-bar" style="width:62%;background:#10B981"></div></div>
+          <div class="score-val">62/100</div>
+        </div>
+        <div class="score-col">
+          <label>Strategic Fit</label>
+          <div class="score-bar-wrap"><div class="score-bar" style="width:92%;background:#3B82F6"></div></div>
+          <div class="score-val">92/100</div>
+        </div>
+      </div>
+      <div class="band-pill">Must Have</div>
+      <div class="score-rationale">Real-time ML fraud detection directly reduces financial and reputational risk in card payments, aligns tightly with Risk Reduction priority, and is achievable within a Medium sprint if model infrastructure exists.</div>
+    </div>
+
+    <p style="margin-top:8px;">Same feature. Same sprint capacity. Different frame → different band. The rationale explains the reasoning, not just the number.</p>
+  </div>
+
+  <hr />
+
+  <!-- Demo runs -->
+  <div class="section">
+    <h2>Demo Runs</h2>
+    <p>Four complete test runs were conducted across two product domains and four strategic frames.</p>
+
+    <div class="runs-grid">
+      <div class="run-card">
+        <div class="run-label">Run 1 · Payments · Growth</div>
+        <div class="run-title">3 Must Have · 2 Should Have · 1 Nice · 1 Deprioritize</div>
+        <div class="run-insight">Apple Pay / Google Pay ranked #1. Microservices migration Deprioritized — <strong>effort 90 exceeds Medium capacity</strong>, not low value.</div>
+      </div>
+      <div class="run-card">
+        <div class="run-label">Run 2 · Payments · Risk Reduction</div>
+        <div class="run-title">2 Must Have · 2 Should Have · 1 Nice · 3 Deprioritize</div>
+        <div class="run-insight">BNPL Deprioritized with the note it <strong>introduces third-party dependency risk</strong> — actively counter to the frame, not just neutral.</div>
+      </div>
+      <div class="run-card">
+        <div class="run-label">Run 3 · Data Platform · Efficiency</div>
+        <div class="run-title">3 Must Have · 2 Should Have · 1 Nice · 2 Deprioritize</div>
+        <div class="run-insight">Self-serve SQL layer ranked #2 Must Have. Merchant dashboard <strong>jumped from Nice to Have</strong> — decline visibility is an efficiency signal.</div>
+      </div>
+      <div class="run-card">
+        <div class="run-label">Run 4 · Data Platform · Compliance</div>
+        <div class="run-title">3 Must Have · 1 Should Have · 2 Nice · 2 Deprioritize</div>
+        <div class="run-insight">GDPR purge workflow: Nice to Have in Efficiency → <strong>#1 Must Have</strong> in Compliance. SQL layer deferred — introduces access governance risk before controls are in place.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Design decisions -->
+  <div class="section">
+    <h2>Design Decisions</h2>
+    <div class="decision-list">
+      <div class="decision-item">
+        <div class="decision-icon">💬</div>
+        <div>
+          <h4>Rationale-first, numbers-second</h4>
+          <p>The score bars are secondary. The one-line rationale is what a TPM presents and defends in a planning meeting. Every band assignment is explained in context of the selected Product Area and Strategic Priority — not as a generic statement.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="decision-icon">⚖️</div>
+        <div>
+          <h4>Effort as a sprint constraint, not a cost</h4>
+          <p>High-effort items are blocked from Must Have regardless of impact when they exceed the selected sprint capacity. This mirrors real sprint planning logic: a high-value item can be genuinely wrong for a given cycle.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="decision-icon">🚩</div>
+        <div>
+          <h4>Honest misalignment flagging</h4>
+          <p>Items that are valuable in one frame are explicitly called out as misaligned in another. BNPL "introduces dependency risk" in Risk Reduction. The SQL query layer "should be deferred until governance controls are in place" in Compliance. The tool doesn't paper over tension.</p>
+        </div>
+      </div>
+      <div class="decision-item">
+        <div class="decision-icon">🛡️</div>
+        <div>
+          <h4>Synthetic fallback for demo resilience</h4>
+          <p>If the Claude API call fails mid-demo, the tool falls back to pre-loaded synthetic scores silently. The demo never breaks during an interview or stakeholder walkthrough.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Build approach -->
+  <div class="section">
+    <h2>Build Approach</h2>
+    <p>Built in two staged phases — same approach as VendorLens and PropelIQ.</p>
+    <div class="stages">
+      <div class="stage">
+        <div class="stage-dot"></div>
+        <h4>Stage 1 — Synthetic data + UI shell</h4>
+        <p>Full UI built with hardcoded synthetic scores for 8 realistic Payments features. All ranking logic, score bars, band assignment, and Decision Brief generation working end-to-end with no API dependency. Demo-ready from first load.</p>
+      </div>
+      <div class="stage">
+        <div class="stage-dot"></div>
+        <h4>Stage 2 — Claude API wired in</h4>
+        <p>Two API calls replaced the synthetic layer: one structured JSON scoring prompt per prioritization run, one narrative prompt for Decision Brief generation. Synthetic fallback retained. Context dropdowns feed directly into both prompts — the model receives Product Area, Sprint Capacity, and Strategic Priority as explicit scoring constraints.</p>
+      </div>
+    </div>
+  </div>
+
+  <hr />
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-left">Built by <strong>Rishendra Vikram Singh</strong> · Senior Consultant, SPRAC Services</div>
+    <div class="footer-links">
+      <a href="https://linkedin.com/in/rishendra-vikram-singh-a7355718a/" target="_blank">LinkedIn</a>
+      <a href="https://rishendra125.github.io" target="_blank">Portfolio</a>
+      <a href="https://claude.ai/artifact/JoFnjKqfjxYMDWeZkBgda9" target="_blank">Live Tool</a>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

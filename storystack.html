@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StoryStack — Product Backlog Prioritization Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:        #0B1628;
+    --panel:     #111F35;
+    --panel2:    #182844;
+    --border:    #1E3050;
+    --border2:   #2A4470;
+    --text:      #E2E8F0;
+    --muted:     #7A9BBF;
+    --accent:    #3B82F6;
+    --accent2:   #60A5FA;
+    --amber:     #F59E0B;
+    --green:     #10B981;
+    --red:       #EF4444;
+    --purple:    #8B5CF6;
+    --must:      #3B82F6;
+    --should:    #10B981;
+    --nice:      #F59E0B;
+    --deprio:    #6B7280;
+    --font:      'Inter', sans-serif;
+    --mono:      'DM Mono', monospace;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Header ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 700; color: #fff;
+    font-family: var(--mono);
+  }
+  .logo-text { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-text span { color: var(--accent2); }
+  .header-tag {
+    font-size: 11px; font-family: var(--mono);
+    color: var(--muted); background: var(--panel2);
+    padding: 4px 10px; border-radius: 20px;
+    border: 1px solid var(--border);
+  }
+
+  /* ── Layout ── */
+  .workspace {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* ── Left Panel ── */
+  .left-panel {
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow-y: auto;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-family: var(--mono);
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    line-height: 1.55;
+    resize: vertical;
+    min-height: 160px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+
+  .dropdowns {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .dropdown-group label {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 5px;
+    font-family: var(--mono);
+  }
+  select {
+    width: 100%;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A9BBF' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    transition: border-color 0.15s;
+  }
+  select:focus { border-color: var(--accent); }
+
+  .btn-primary {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, opacity 0.15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-primary:hover { background: #2563EB; }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .btn-ghost {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 13px;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+
+  .hint {
+    font-size: 11px; color: var(--muted); line-height: 1.5;
+    background: var(--panel2); border-radius: 8px; padding: 10px 12px;
+    border-left: 3px solid var(--accent);
+  }
+
+  /* ── Right Panel ── */
+  .right-panel {
+    padding: 24px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .right-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .right-title {
+    font-size: 16px; font-weight: 600;
+  }
+  .right-title span { color: var(--muted); font-weight: 400; font-size: 13px; margin-left: 8px; }
+
+  .context-chips {
+    display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .chip {
+    font-size: 11px; font-family: var(--mono);
+    background: var(--panel2); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 10px; color: var(--muted);
+  }
+  .chip strong { color: var(--text); }
+
+  /* ── Feature Table ── */
+  .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .feature-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    border-left: 4px solid var(--deprio);
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    gap: 0;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .feature-card:hover { border-color: var(--border2); }
+  .feature-card.band-must   { border-left-color: var(--must); }
+  .feature-card.band-should { border-left-color: var(--should); }
+  .feature-card.band-nice   { border-left-color: var(--nice); }
+  .feature-card.band-deprio { border-left-color: var(--deprio); }
+
+  .feature-rank {
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 12px; color: var(--muted);
+    background: var(--panel2);
+    border-right: 1px solid var(--border);
+  }
+
+  .feature-body {
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .feature-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .feature-title {
+    font-size: 14px; font-weight: 600; line-height: 1.4;
+    flex: 1;
+  }
+
+  .band-tag {
+    font-size: 10px; font-family: var(--mono);
+    padding: 3px 9px; border-radius: 20px;
+    white-space: nowrap; flex-shrink: 0;
+    font-weight: 500;
+  }
+  .band-tag.must   { background: rgba(59,130,246,0.15); color: #93C5FD; border: 1px solid rgba(59,130,246,0.3); }
+  .band-tag.should { background: rgba(16,185,129,0.15); color: #6EE7B7; border: 1px solid rgba(16,185,129,0.3); }
+  .band-tag.nice   { background: rgba(245,158,11,0.15); color: #FCD34D; border: 1px solid rgba(245,158,11,0.3); }
+  .band-tag.deprio { background: rgba(107,114,128,0.15); color: #9CA3AF; border: 1px solid rgba(107,114,128,0.3); }
+
+  .feature-scores {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .score-item label {
+    font-size: 10px; font-family: var(--mono); color: var(--muted);
+    display: block; margin-bottom: 4px;
+  }
+  .score-bar-wrap {
+    height: 4px; background: var(--panel2); border-radius: 2px; overflow: hidden;
+  }
+  .score-bar {
+    height: 100%; border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .score-val {
+    font-size: 11px; font-family: var(--mono); color: var(--text);
+    margin-top: 3px;
+  }
+
+  .feature-rationale {
+    font-size: 12px; color: var(--muted); line-height: 1.55;
+    font-style: italic;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+  }
+
+  /* ── Empty state ── */
+  .empty-state {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 12px; color: var(--muted); text-align: center;
+    padding: 40px;
+  }
+  .empty-icon { font-size: 40px; opacity: 0.4; }
+  .empty-state p { font-size: 14px; max-width: 280px; line-height: 1.55; }
+
+  /* ── Decision Brief section ── */
+  .brief-bar {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brief-info p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .brief-info h3 { font-size: 14px; font-weight: 600; }
+
+  .btn-brief {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #4F46E5, #3B82F6);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .btn-brief:hover { opacity: 0.88; }
+  .btn-brief:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Brief Output ── */
+  .brief-output {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    display: none;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .brief-output.visible { display: flex; }
+  .brief-output h2 {
+    font-size: 16px; font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+    color: var(--accent2);
+  }
+  .brief-output pre {
+    font-family: var(--font);
+    font-size: 13px; line-height: 1.7;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* ── Loading spinner ── */
+  .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Summary bar ── */
+  .summary-bar {
+    display: flex; gap: 16px; flex-wrap: wrap;
+  }
+  .summary-stat {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-family: var(--mono);
+  }
+  .stat-dot { width: 8px; height: 8px; border-radius: 50%; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">S</div>
+    <div class="logo-text">Story<span>Stack</span></div>
+  </div>
+  <div class="header-tag">Product Backlog Prioritization Assistant · Technical PM Portfolio</div>
+</header>
+
+<div class="workspace">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+
+    <div>
+      <div class="section-label">feature requests / user stories</div>
+      <textarea id="backlogInput" placeholder="Paste feature requests, one per line or separated by blank lines…&#10;&#10;E.g. Add real-time fraud detection for card transactions&#10;Rebuild checkout with 1-click payment…"></textarea>
+    </div>
+
+    <div class="dropdowns">
+      <div class="section-label">context</div>
+
+      <div class="dropdown-group">
+        <label>Product Area</label>
+        <select id="productArea">
+          <option value="payments">Payments</option>
+          <option value="ecommerce">eCommerce</option>
+          <option value="data_platform">Data Platform</option>
+        </select>
+      </div>
+
+      <div class="dropdown-group">
+        <label>Sprint Capacity</label>
+        <select id="sprintCapacity">
+          <option value="medium" selected>Medium</option>
+          <option value="small">Small</option>
+          <option value="large">Large</option>
+        </select>
+      </div>
+
+      <div class="dropdown-group">
+        <label>Strategic Priority</label>
+        <select id="strategicPriority">
+          <option value="growth">Growth</option>
+          <option value="risk_reduction">Risk Reduction</option>
+          <option value="compliance">Compliance</option>
+          <option value="efficiency">Efficiency</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn-primary" id="prioritizeBtn" onclick="runPrioritization()">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M1 2h12M3 7h8M5 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Prioritize Backlog
+    </button>
+
+    <button class="btn-ghost" onclick="loadExample()">Load Example Backlog</button>
+
+    <div class="hint">
+      Pre-loaded with a synthetic Payments backlog for demo. Hit <strong>Load Example Backlog</strong> to populate, then <strong>Prioritize</strong> to rank.
+    </div>
+
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel" id="rightPanel">
+
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">⚡</div>
+      <p>Load the example backlog or paste your own feature requests, set your context, and hit Prioritize.</p>
+    </div>
+
+    <!-- Results (hidden until run) -->
+    <div id="resultsArea" style="display:none; display:flex; flex-direction:column; gap:20px;">
+
+      <div class="right-header">
+        <div>
+          <div class="right-title">Prioritized Backlog <span id="featureCount"></span></div>
+          <div class="context-chips" id="contextChips" style="margin-top:8px;"></div>
+        </div>
+        <div class="summary-bar" id="summaryBar"></div>
+      </div>
+
+      <div class="feature-list" id="featureList"></div>
+
+      <div class="brief-bar">
+        <div class="brief-info">
+          <h3>Decision Brief</h3>
+          <p>Generate a 1-page prioritization memo for engineering and leadership sign-off</p>
+        </div>
+        <button class="btn-brief" id="briefBtn" onclick="generateBrief()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 5h5M4 7.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          Generate Brief
+        </button>
+      </div>
+
+      <div class="brief-output" id="briefOutput">
+        <h2>Decision Brief</h2>
+        <pre id="briefText"></pre>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Synthetic example backlog ──
+const EXAMPLE_BACKLOG = [
+  "Add real-time fraud detection for card transactions using ML scoring at checkout",
+  "Rebuild the 3DS2 authentication flow to reduce step-up rate by 30% and improve conversion",
+  "Introduce dynamic currency conversion (DCC) at POS and online checkout for international buyers",
+  "Implement PCI-DSS Level 1 tokenisation across all card storage endpoints to pass upcoming audit",
+  "Add Apple Pay and Google Pay as express checkout options on mobile web",
+  "Build a merchant self-serve dashboard to view transaction decline reasons and retry rates",
+  "Migrate payment processing engine from monolith to event-driven microservices (Kafka-backed)",
+  "Integrate buy-now-pay-later (BNPL) options — Klarna and Afterpay — at checkout"
+];
+
+// ── Synthetic scoring (Stage 1 — no API) ──
+const SYNTHETIC_SCORES = [
+  { impact: 90, effort: 65, fit: 95, band: "must",
+    rationale: "Fraud is a direct revenue and trust risk; ML detection at scoring time is table-stakes for a Growth + Risk-Reduction quarter." },
+  { impact: 88, effort: 55, fit: 85, band: "must",
+    rationale: "A 30% drop in step-up rate translates directly to conversion lift — highest ROI item in the backlog given Medium capacity." },
+  { impact: 72, effort: 50, fit: 80, band: "should",
+    rationale: "DCC unlocks international revenue; strong Growth fit but lower urgency than fraud and auth hardening." },
+  { impact: 95, effort: 70, fit: 90, band: "must",
+    rationale: "PCI audit is a hard compliance deadline — non-negotiable regardless of strategic priority; blocks merchant growth." },
+  { impact: 78, effort: 35, fit: 82, band: "should",
+    rationale: "Apple/Google Pay adoption is high on mobile; reasonable effort with clear conversion upside for a Growth frame." },
+  { impact: 60, effort: 40, fit: 65, band: "nice",
+    rationale: "Merchant visibility into declines is valuable but internally-facing; good Efficiency win but not critical path this sprint." },
+  { impact: 55, effort: 90, fit: 50, band: "deprio",
+    rationale: "Engine migration is a multi-quarter effort with high risk; valuable long-term but wrong size for Medium sprint capacity." },
+  { impact: 80, effort: 55, fit: 75, band: "should",
+    rationale: "BNPL drives basket conversion; strong Growth signal but integration complexity and partner dependency warrant Should Have." }
+];
+
+const BAND_ORDER = { must: 0, should: 1, nice: 2, deprio: 3 };
+const BAND_LABELS = {
+  must: "Must Have", should: "Should Have", nice: "Nice to Have", deprio: "Deprioritize"
+};
+
+let currentFeatures = [];
+let currentScores = [];
+let currentContext = {};
+
+function loadExample() {
+  document.getElementById("backlogInput").value = EXAMPLE_BACKLOG.join("\n\n");
+  document.getElementById("productArea").value = "payments";
+  document.getElementById("sprintCapacity").value = "medium";
+  document.getElementById("strategicPriority").value = "growth";
+}
+
+function parseFeatures(text) {
+  return text.split(/\n{2,}|\n(?=\S)/)
+    .map(s => s.replace(/\n/g, " ").trim())
+    .filter(s => s.length > 0);
+}
+
+function scoreColor(val) {
+  if (val >= 80) return "#3B82F6";
+  if (val >= 60) return "#10B981";
+  if (val >= 40) return "#F59E0B";
+  return "#6B7280";
+}
+
+function runPrioritization() {
+  const raw = document.getElementById("backlogInput").value.trim();
+  if (!raw) { alert("Please enter at least one feature request."); return; }
+
+  const features = parseFeatures(raw);
+  const productArea = document.getElementById("productArea").value;
+  const sprintCapacity = document.getElementById("sprintCapacity").value;
+  const strategicPriority = document.getElementById("strategicPriority").value;
+
+  currentContext = { productArea, sprintCapacity, strategicPriority };
+
+  // Use synthetic scores for matching features, generate generic ones otherwise
+  const scores = features.map((f, i) => {
+    if (i < SYNTHETIC_SCORES.length) return SYNTHETIC_SCORES[i];
+    const impact = 40 + Math.floor(Math.random() * 50);
+    const effort = 30 + Math.floor(Math.random() * 60);
+    const fit = 40 + Math.floor(Math.random() * 50);
+    const avg = (impact + fit - effort * 0.3) / 2;
+    const band = avg > 75 ? "must" : avg > 60 ? "should" : avg > 45 ? "nice" : "deprio";
+    return { impact, effort, fit, band, rationale: "Scored based on context and capacity analysis." };
+  });
+
+  // Sort by band then by (impact + fit - effort * 0.3)
+  const indexed = features.map((f, i) => ({ f, s: scores[i], i }));
+  indexed.sort((a, b) => {
+    const ba = BAND_ORDER[a.s.band], bb = BAND_ORDER[b.s.band];
+    if (ba !== bb) return ba - bb;
+    const scoreA = a.s.impact + a.s.fit - a.s.effort * 0.3;
+    const scoreB = b.s.impact + b.s.fit - b.s.effort * 0.3;
+    return scoreB - scoreA;
+  });
+
+  currentFeatures = indexed.map(x => x.f);
+  currentScores = indexed.map(x => x.s);
+
+  renderResults();
+}
+
+function renderResults() {
+  document.getElementById("emptyState").style.display = "none";
+  document.getElementById("resultsArea").style.display = "flex";
+  document.getElementById("briefOutput").classList.remove("visible");
+  document.getElementById("briefText").textContent = "";
+
+  const count = currentFeatures.length;
+  document.getElementById("featureCount").textContent = `— ${count} feature${count !== 1 ? "s" : ""}`;
+
+  // Context chips
+  const labels = {
+    productArea: { payments: "Payments", ecommerce: "eCommerce", data_platform: "Data Platform" },
+    sprintCapacity: { small: "Small Sprint", medium: "Medium Sprint", large: "Large Sprint" },
+    strategicPriority: { growth: "Growth", risk_reduction: "Risk Reduction", compliance: "Compliance", efficiency: "Efficiency" }
+  };
+  document.getElementById("contextChips").innerHTML = Object.entries(currentContext)
+    .map(([k, v]) => `<div class="chip"><strong>${labels[k][v]}</strong></div>`).join("");
+
+  // Summary bar
+  const counts = { must: 0, should: 0, nice: 0, deprio: 0 };
+  currentScores.forEach(s => counts[s.band]++);
+  const colors = { must: "#3B82F6", should: "#10B981", nice: "#F59E0B", deprio: "#6B7280" };
+  document.getElementById("summaryBar").innerHTML = Object.entries(counts)
+    .filter(([, v]) => v > 0)
+    .map(([k, v]) => `<div class="summary-stat"><div class="stat-dot" style="background:${colors[k]}"></div>${v} ${BAND_LABELS[k]}</div>`)
+    .join("");
+
+  // Feature cards
+  const list = document.getElementById("featureList");
+  list.innerHTML = "";
+  currentFeatures.forEach((feat, idx) => {
+    const s = currentScores[idx];
+    const card = document.createElement("div");
+    card.className = `feature-card band-${s.band}`;
+    card.innerHTML = `
+      <div class="feature-rank">${idx + 1}</div>
+      <div class="feature-body">
+        <div class="feature-top">
+          <div class="feature-title">${escapeHtml(feat)}</div>
+          <div class="band-tag ${s.band}">${BAND_LABELS[s.band]}</div>
+        </div>
+        <div class="feature-scores">
+          <div class="score-item">
+            <label>Business Impact</label>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:${s.impact}%;background:${scoreColor(s.impact)}"></div></div>
+            <div class="score-val">${s.impact}/100</div>
+          </div>
+          <div class="score-item">
+            <label>Effort</label>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:${s.effort}%;background:${scoreColor(100 - s.effort)}"></div></div>
+            <div class="score-val">${s.effort}/100</div>
+          </div>
+          <div class="score-item">
+            <label>Strategic Fit</label>
+            <div class="score-bar-wrap"><div class="score-bar" style="width:${s.fit}%;background:${scoreColor(s.fit)}"></div></div>
+            <div class="score-val">${s.fit}/100</div>
+          </div>
+        </div>
+        <div class="feature-rationale">${escapeHtml(s.rationale)}</div>
+      </div>
+    `;
+    list.appendChild(card);
+  });
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+
+// ── Stage 1: synthetic brief ──
+function generateBrief() {
+  const btn = document.getElementById("briefBtn");
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Generating…';
+
+  // Stage 1: synthetic brief content (will be replaced by API call in Stage 2)
+  setTimeout(() => {
+    const ctx = currentContext;
+    const areaLabel = { payments: "Payments", ecommerce: "eCommerce", data_platform: "Data Platform" }[ctx.productArea];
+    const sprintLabel = { small: "Small", medium: "Medium", large: "Large" }[ctx.sprintCapacity];
+    const stratLabel = { growth: "Growth", risk_reduction: "Risk Reduction", compliance: "Compliance", efficiency: "Efficiency" }[ctx.strategicPriority];
+
+    const mustHave = currentFeatures.filter((_, i) => currentScores[i].band === "must");
+    const shouldHave = currentFeatures.filter((_, i) => currentScores[i].band === "should");
+    const deprio = currentFeatures.filter((_, i) => currentScores[i].band === "deprio");
+
+    const brief = `STORYSTACK DECISION BRIEF
+${areaLabel} · ${sprintLabel} Sprint Capacity · ${stratLabel} Strategic Frame
+Generated: ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })}
+
+━━━ EXECUTIVE SUMMARY ━━━
+
+This brief presents a structured prioritization of ${currentFeatures.length} feature requests for the ${areaLabel} product area. Given a ${sprintLabel.toLowerCase()} sprint capacity and a ${stratLabel.toLowerCase()} strategic frame, the recommendation is to commit to ${mustHave.length} Must Have items, progress ${shouldHave.length} Should Have items to refinement, and defer ${deprio.length} lower-priority item${deprio.length !== 1 ? "s" : ""}.
+
+━━━ MUST HAVE (THIS SPRINT) ━━━
+
+${mustHave.map((f, i) => `${i+1}. ${f}`).join("\n")}
+
+These items represent the highest-value, highest-fit work relative to our ${stratLabel.toLowerCase()} objective. Each carries measurable business impact and aligns with near-term engineering capacity. Deferral risk is high — delay compounds technical and commercial exposure.
+
+━━━ SHOULD HAVE (NEXT SPRINT / REFINEMENT) ━━━
+
+${shouldHave.map((f, i) => `${i+1}. ${f}`).join("\n")}
+
+These items are valuable and strategically aligned but are appropriately sequenced after Must Haves. They should enter the refinement queue this sprint for next sprint delivery.
+
+━━━ DEPRIORITIZED (BACKLOG — REVISIT IN PLANNING) ━━━
+
+${deprio.length > 0 ? deprio.map((f, i) => `${i+1}. ${f}`).join("\n") : "No items deprioritized in this run."}
+
+Deprioritized items are not dismissed — they exceed current sprint scope or carry implementation risk that requires architectural investment. Recommend revisiting in quarterly planning.
+
+━━━ RECOMMENDATION FOR ENGINEERING ━━━
+
+Commit the Must Have set to sprint scope. Prepare detailed acceptance criteria and dependency mapping for Should Have items in parallel. Block deprioritized items from entering sprint until capacity or strategy shifts.
+
+━━━ RECOMMENDATION FOR LEADERSHIP ━━━
+
+Endorse this prioritization as the ${areaLabel} product team's sprint commitment. Any scope changes should be assessed against the strategic frame (${stratLabel}) and re-scored before admission.
+
+— Generated by StoryStack`;
+
+    document.getElementById("briefText").textContent = brief;
+    document.getElementById("briefOutput").classList.add("visible");
+
+    btn.disabled = false;
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="1" y="1" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/><path d="M4 5h5M4 7.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg> Regenerate Brief`;
+  }, 1200);
+}
+
+// Auto-load on start
+window.addEventListener("DOMContentLoaded", () => {
+  loadExample();
+  runPrioritization();
+});
+</script>
+
+</body>
+</html>
