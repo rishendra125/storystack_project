@@ -7,16 +7,6 @@
 
 An AI-powered backlog prioritization tool for Technical Program Managers. Paste feature requests, set your product context across three dropdowns, and get back a ranked, scored backlog with a one-line rationale per feature — plus a 1-page Decision Brief formatted for engineering and leadership sign-off.
 
-> Built as a portfolio piece demonstrating AI-augmented TPM workflows. Same staged build approach as [VendorLens](https://github.com/rishendra125) and [PropelIQ](https://github.com/rishendra125/propeliq_project).
-
----
-
-## 🚀 Live Demo
-
-**[→ Open StoryStack](https://claude.ai/artifact/JoFnjKqfjxYMDWeZkBgda9)**
-
-Pre-loaded with a synthetic Payments backlog of 8 realistic feature requests. No setup required — open and prioritize immediately.
-
 ---
 
 ## Screenshots
@@ -35,6 +25,67 @@ Pre-loaded with a synthetic Payments backlog of 8 realistic feature requests. No
 ## What It Does
 
 StoryStack scores each feature request across three dimensions and assigns a Priority Band, with a rationale tied to the selected context. **The same backlog produces materially different rankings when the strategic frame changes** — that context-sensitivity is the core value of the tool.
+
+---
+
+## Running Locally (JSX version)
+
+The `storystack.jsx` file is a self-contained React component that calls the Claude API directly. To run it locally you need a Vite + React project and a Claude API key.
+
+### Prerequisites
+
+- Node.js 18+
+- A Claude API key from [console.anthropic.com](https://console.anthropic.com)
+
+### Setup
+
+```bash
+# 1. Create a new Vite React project
+npm create vite@latest storystack-app -- --template react
+cd storystack-app
+
+# 2. Install dependencies
+npm install
+
+# 3. Replace src/App.jsx with storystack.jsx
+# Copy storystack.jsx into src/ and update src/main.jsx to import it
+
+# 4. Add your API key to .env
+echo "VITE_ANTHROPIC_API_KEY=your_api_key_here" > .env
+```
+
+### Wire the API key
+
+In `storystack.jsx`, find both `fetch("https://api.anthropic.com/v1/messages", ...)` calls and add the Authorization header:
+
+```javascript
+const response = await fetch("https://api.anthropic.com/v1/messages", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
+    "anthropic-version": "2023-06-01",
+    "anthropic-dangerous-direct-browser-access": "true",
+  },
+  body: JSON.stringify({ ... })
+});
+```
+
+### Run
+
+```bash
+npm run dev
+```
+
+Open `http://localhost:5173` — the tool loads with the example Payments backlog pre-populated.
+
+> **Note:** Never commit your `.env` file or expose your API key publicly. Add `.env` to `.gitignore`.
+
+---
+
+## Standalone HTML version (no setup)
+
+`storystack.html` runs directly in the browser with no build step. Open it locally or serve it with any static file server. The Claude API calls are made client-side — the synthetic fallback kicks in automatically if no API response is received.
 
 ---
 
@@ -169,23 +220,25 @@ Two API calls replaced the synthetic layer: one structured JSON scoring prompt p
 ## File Structure
 
 ```
-storystack/
-├── storystack.html               # Main tool (self-contained, no build step)
+storystack_project/
+├── storystack.jsx                # React JSX component (run locally with Vite)
+├── storystack.html               # Standalone HTML version (no build step)
 ├── storystack-casestudy.html     # Portfolio case study page
 ├── storystack-flow.html          # Architecture flow diagram
 ├── README.md
 ├── LICENSE
 └── screenshots/
+    ├── decision-brief.png
     ├── growth-run.png
-    ├── risk-reduction-run.png
-    └── decision-brief.png
+    └── risk-reduction-run.png
 ```
 
 ---
 
 ## Stack
 
-- Vanilla HTML / CSS / JS — no build step, single file
+- React (JSX) · Vite — for local development
+- Vanilla HTML / CSS / JS — standalone version, no build step
 - Claude API — `claude-sonnet-4-6`
 - Google Fonts — Inter + DM Mono
 
